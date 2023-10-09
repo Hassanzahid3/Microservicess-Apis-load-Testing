@@ -1,0 +1,25 @@
+from locust import HttpUser, task, between
+
+class MyUser(HttpUser):
+    wait_time = between(1, 5)  # Wait between 1 to 5 seconds between requests
+
+    host = "https://staging.imlink.network"  # Define the host here
+
+    @task
+    def get_reaction_count(self):
+        endpoint = "/v1/reacts/private/likes?contentId=949f3146-3dc3-4e15-aff5-ea92decc8210"
+
+        headers = {
+            "User-Agent": "PostmanRuntime/7.33.0",
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive"
+        }
+
+        response = self.client.get(endpoint, headers=headers)
+
+        # Check the response status code and apply an if-else condition
+        if response.status_code == 200:
+            self.locust.log_success("Get Reaction Count Successful", response.content)
+        else:
+            self.locust.log_failure("Get Reaction Count Failed", response.content)
